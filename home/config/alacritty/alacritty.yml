@@ -1,0 +1,10 @@
+import:
+  - ~/.config/alacritty/gruvbox_dark.yaml
+
+font:
+  size: 9
+  normal:
+    family: DejaVuSansM Nerd Font Mono
+
+window:
+  opacity: 0.935

@@ -1,0 +1,8 @@
+keymap sd COMMAND "TAB_GOTO https://duckduckgo.com/lite/; NEXT_LINK; GOTO_LINK; SUBMIT"
+keymap h COMMAND "MOVE_LEFT1"
+keymap j COMMAND "MOVE_DOWN1"
+keymap k COMMAND "MOVE_UP1"
+keymap l COMMAND "MOVE_RIGHT1"
+keymap C-d COMMAND "NEXT_PAGE"
+keymap C-u COMMAND "PREV_PAGE"
+keymap 0 COMMAND "LINE_BEGIN"
