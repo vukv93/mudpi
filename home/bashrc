@@ -117,5 +117,8 @@ export EDITOR=nvim
 export PS1="\[\033[1m\]$\[\033[0m\] "
 export PS1="\[\033[1m\][$SHLVL:\j]\[\033[0m\]\n$PS1"
 export PS1="\$(hostname):\[\033[1;94m\]\$(dirs)\[\033[0m\] $PS1"
+if [[ -n $(type -P tool) ]]; then source <(tool shellsetup); fi
 alias e=emacs
 alias v=nvim
+alias m=make
+alias bat=batcat
