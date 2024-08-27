@@ -1,18 +1,14 @@
 set $mod Mod4
-
-bindsym $mod+Shift+c reload
-bindsym $mod+Shift+r restart
-bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -b 'Yes, exit i3' 'i3-msg exit'"
-
+bindsym $mod+Shift+r reload
+bindsym $mod+Shift+e exec "swaynag -t warning -m 'Exit Sway?' -b 'Yes, exit' 'sway exit'"
 font pango:DejaVu Sans Mono 8
 workspace_layout tabbed
-hide_edge_borders vertical
+hide_edge_borders --i3 both
 default_border none
-
 floating_modifier $mod
 bindsym $mod+Return exec alacritty
 bindsym $mod+Shift+q kill
-bindsym $mod+d exec dmenu_run
+#bindsym $mod+d exec dmenu_run
 bindsym $mod+h focus left
 bindsym $mod+j focus down
 bindsym $mod+k focus up
@@ -35,7 +31,7 @@ bindsym $mod+f fullscreen toggle
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
-bindsym $mod+m exec --no-startup-id xdotool mousemove 8000 8000
+#bindsym $mod+m exec --no-startup-id xdotool mousemove 8000 8000
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
@@ -59,10 +55,9 @@ bindsym $mod+Shift+7 move container to workspace 7
 bindsym $mod+Shift+8 move container to workspace 8
 bindsym $mod+Shift+9 move container to workspace 9
 bindsym $mod+Shift+0 move container to workspace 10
-bindsym $mod+Shift+s exec "scrot"
+bindsym $mod+Shift+s exec "grim"
 bindsym $mod+Tab [class=".*"] scratchpad show
 bindsym $mod+Shift+Tab move scratchpad
-
 mode "resize" {
         bindsym h resize shrink width 10 px or 10 ppt
         bindsym j resize grow height 10 px or 10 ppt
@@ -76,7 +71,6 @@ mode "resize" {
         bindsym Escape mode "default"
 }
 bindsym $mod+r mode "resize"
-
 for_window [class="pop-up"] floating enable
 for_window [class="bubble"] floating enable
 for_window [class="task_dialog"] floating enable
@@ -84,7 +78,6 @@ for_window [class="Preferences"] floating enable
 for_window [class="About"] floating enable
 for_window [class="dialog"] floating enable
 for_window [class="menu"] floating enable
-
 for_window [class="qjackctl"] floating enable
 for_window [class="QjackCtl"] floating enable
 for_window [class="SuperCollider" title="localhost.*"] floating enable 
@@ -95,25 +88,22 @@ for_window [class="SuperCollider" title="Stethoscope"] move position 440px 160px
 for_window [class="SuperCollider" title="localhost levels.*"] move position 750px 20px
 #for_window [class="SuperCollider" title="localhost.*"] move scratchpad
 #for_window [class="SuperCollider" title="Stethoscope"] move scratchpad
-
-exec_always feh --bg-fill ~/home/library/pictures/wall/venus.png ~/home/library/pictures/wall/abstract/kandinsky.png
-exec numlockx on
-exec_always "setxkbmap -option grp:alt_shift_toggle,grp_led:scroll us,rs,rs -variant ,latin,"
-bindsym $mod+Shift+p exec "setxkbmap -option"
-exec_always dunst
-exec_always picom
-#bindsym Print exec spectacle
-bindsym $mod+x exec "sleep 1; xset s activate"
+input * xkb_layout "us,rs,rs"
+input * xkb_variant ",latin,"
+#input * xkb_options "grp:alt_shift_toggle"
+output HDMI-A-1 pos 0 0
+output HDMI-A-1 background ~/home/library/pictures/wall/abstract/rby.png fill
+output DVI-D-1 pos 1920 0
+output DVI-D-1 background ~/home/library/pictures/wall/right-cycle/perlgerl.png fill
+exec redshift
 bindsym $mod+Shift+w exec firefox
-exec xrandr --output DVI-D-0 --right-of HDMI-A-0
-workspace 1 output HDMI-A-0
-workspace 3 output HDMI-A-0
-workspace 5 output HDMI-A-0
-workspace 7 output HDMI-A-0
-workspace 9 output HDMI-A-0
-workspace 2 output DVI-D-0
-workspace 4 output DVI-D-0
-workspace 6 output DVI-D-0
-workspace 8 output DVI-D-0
-workspace 10 output DVI-D-0
-
+workspace 1 output HDMI-A-1
+workspace 3 output HDMI-A-1
+workspace 5 output HDMI-A-1
+workspace 7 output HDMI-A-1
+workspace 9 output HDMI-A-1
+workspace 2  output DVI-D-1
+workspace 4  output DVI-D-1
+workspace 6  output DVI-D-1
+workspace 8  output DVI-D-1
+workspace 10 output DVI-D-1

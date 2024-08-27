@@ -19,6 +19,7 @@ vim.opt.conceallevel = 2
 vim.opt.hlsearch = true
 vim.opt.completeopt = {'menu', 'menuone', 'noselect'}
 vim.opt.termguicolors = true
+vim.g.nvlime_config = {cmp = {enabled = true}}
 function todo_add()
   vim.cmd("normal O")
   vim.api.nvim_put({"@todo["..os.date("%y%m%d_%H%M%S").."]"}, "", true, true)
@@ -40,6 +41,7 @@ vim.keymap.set('n', ',,m', '<cmd>term make<cr>')
 vim.keymap.set('n', ',,b', '<cmd>b#<cr>')
 vim.keymap.set('n', ',,v', '<cmd>vs<cr>')
 vim.keymap.set('n', ',,s', '<cmd>sp<cr>')
+vim.keymap.set('n', ',,z', '<cmd>term emacs<cr>')
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>')
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>')
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>')
@@ -63,6 +65,8 @@ require("lazy").setup({
   "folke/which-key.nvim",
   {"folke/neoconf.nvim", cmd = "Neoconf"},
   "folke/neodev.nvim",
+  "jlanzarotta/bufexplorer",
+  "tpope/vim-fugitive",
   "tpope/vim-fugitive",
   "tpope/vim-commentary",
   "tpope/vim-fireplace",
@@ -83,12 +87,17 @@ require("lazy").setup({
   "hrsh7th/cmp-vsnip",
   "hrsh7th/vim-vsnip",
   "tikhomirov/vim-glsl",
-  "vlime/vlime",
-  "hiphish/nvim-cmp-vlime",
   "hiphish/info.vim",
   "rafamadriz/friendly-snippets",
   "guns/vim-sexp",
   "duane9/nvim-rg",
+  "monkoose/parsley",
+  "monkoose/nvlime",
+  --"olical/conjure",
+  --"paterjason/cmp-conjure",
+  --"vlime/vlime",
+  --"hiphish/nvim-cmp-vlime",
+  "sakhnik/nvim-gdb",
   { "folke/trouble.nvim", opts = {}, cmd = "Trouble", },
   {
     "kylechui/nvim-surround",
@@ -96,17 +105,27 @@ require("lazy").setup({
     config = function()
       require("nvim-surround").setup({})
     end,
-  }
+  },
+  {
+    "R-nvim/R.nvim",
+    lazy = false
+  },
+  "R-nvim/cmp-r",
 })
 require("transparent").setup({
   exclude_groups = {'StatusLine','CursorLine'}
 })
 require("nvim-treesitter.configs").setup({
-  ensure_installed = {"c", "lua", "vim", "vimdoc",},
+  ensure_installed = {
+    "c", "commonlisp", "cpp", "lua", "vim", "vimdoc", "markdown",
+    "markdown_inline", "r", "rnoweb", "yaml", "css", "make", "json", "haskell",
+    "doxygen", "xml", "html", "awk", "scheme", "turtle", "fennel",
+  },
   highlight = { enable = true, },
 })
 local lspconfig = require('lspconfig')
 lspconfig.clangd.setup{}
+lspconfig.bashls.setup{}
 vim.cmd("colorscheme gruvbox-material")
 local cmp = require('cmp')
 cmp.setup{
@@ -126,15 +145,16 @@ cmp.setup{
     {name = 'nvim_lsp'},
     {name = 'vsnip'},
     {name = 'buffer'},
+    {name = 'path'},
+    {name = "cmp_r"},
+    --{name = "conjure"},
   },{
     {name = 'buffer'},
   }),
 }
-require('cmp').setup.filetype({'lisp'}, {
-    sources = {
-        {name = 'vlime'}
-    }
-})
+cmp.setup.filetype({'sh'}, {sources = {{name = 'bash-language-server'}}})
+require("cmp_r").setup({})
+cmp.setup.filetype({'lisp'}, {sources = {{name = 'nvlime'}}})
 local vsnip_config = vim.api.nvim_exec(
 [[
 " Expand
