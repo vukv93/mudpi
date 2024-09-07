@@ -31,7 +31,7 @@ bindsym $mod+f fullscreen toggle
 bindsym $mod+s layout stacking
 bindsym $mod+w layout tabbed
 bindsym $mod+e layout toggle split
-#bindsym $mod+m exec --no-startup-id xdotool mousemove 8000 8000
+bindsym $mod+m exec --no-startup-id ydotool mousemove 8000 8000
 bindsym $mod+Shift+space floating toggle
 bindsym $mod+space focus mode_toggle
 bindsym $mod+a focus parent
@@ -94,16 +94,16 @@ input * xkb_variant ",latin,"
 output HDMI-A-1 pos 0 0
 output HDMI-A-1 background ~/home/library/pictures/wall/abstract/rby.png fill
 output DVI-D-1 pos 1920 0
-output DVI-D-1 background ~/home/library/pictures/wall/right-cycle/perlgerl.png fill
+output DVI-D-1 background ~/home/library/pictures/wall/right-cycle/monalisa.png fill
 exec redshift
 bindsym $mod+Shift+w exec firefox
 workspace 1 output HDMI-A-1
+workspace 2 output HDMI-A-1
 workspace 3 output HDMI-A-1
+workspace 4 output HDMI-A-1
 workspace 5 output HDMI-A-1
-workspace 7 output HDMI-A-1
-workspace 9 output HDMI-A-1
-workspace 2  output DVI-D-1
-workspace 4  output DVI-D-1
 workspace 6  output DVI-D-1
+workspace 7  output DVI-D-1
 workspace 8  output DVI-D-1
+workspace 9  output DVI-D-1
 workspace 10 output DVI-D-1

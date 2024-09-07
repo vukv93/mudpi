@@ -6,5 +6,5 @@
 
 ## Scope
 
-Dotfiles.
-
+Dotfiles. Install (some of) the configured tools and script dependencies and
+you got a nice development system.
