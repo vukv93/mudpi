@@ -87,11 +87,6 @@ fi
 # colored GCC warnings and errors
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
-# some more ls aliases
-alias ll='ls -l'
-alias la='ls -A'
-alias l='ls -lh'
-
 # Alias definitions.
 # You may want to put all your additions into a separate file like
 # ~/.bash_aliases, instead of adding them here directly.
@@ -111,15 +106,34 @@ if ! shopt -oq posix; then
     . /etc/bash_completion
   fi
 fi
-
-[[ -z $(echo $PATH | grep "$HOME/bin") ]] && export PATH=$HOME/bin:$PATH
+# @todo[240909_022545] Remove unnecessary Debian defaults.
+# My config, above is default Debian stuff.
+function add_to_path() {
+  [[ -z $(echo "$PATH" | grep "$1") ]] && export PATH="$1:$PATH"
+}
+add_to_path "/usr/games"
+add_to_path "$HOME/.cabal/bin"
+add_to_path "$HOME/bin"
 export EDITOR=nvim
 export PS1="\[\033[1m\]$\[\033[0m\] "
 export PS1="\[\033[1m\][$SHLVL:\j]\[\033[0m\]\n$PS1"
 export PS1="\$(hostname):\[\033[1;34m\]\$(dirs)\[\033[0m\]\$(__git_ps1) $PS1"
+export NOUUA="$HOME/nouua"
 if [[ -n $(type -P tool) ]]; then source <(tool shellsetup); fi
+alias ll='ls -l'
+alias la='ls -A'
+alias l='ls -lh'
+alias cl="(cd ~/common-lisp/local/source && bash)"
+alias clg="(cd ~/common-lisp/global/source && bash)"
+alias b=bash
 alias e=emacs
 alias v=nvim
 alias g=git
 alias m=make
+alias t=tmux
 alias bat=batcat
+alias objdump='objdump --disassembler-color=on'
+alias nouua="(cd $NOUUA && v -O org/notebook.org)"
+alias n=nouua
+. "$HOME/.cargo/env"
+export LD_LIBRARY_PATH="$HOME/opt/kicad/lib:$HOME/opt/wxwidgets-3.2.4/lib:$HOME/lib"

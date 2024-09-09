@@ -242,7 +242,7 @@ require("nvim-treesitter.configs").setup({
 })
 local lspconfig = require('lspconfig')
 lspconfig.clangd.setup{}
-lspconfig.bashls.setup{}
+--lspconfig.bashls.setup{}
 vim.cmd("colorscheme gruvbox-material")
 -- Vsnim 
 local vsnip_config = vim.api.nvim_exec(
