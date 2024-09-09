@@ -9,7 +9,6 @@ case $1 in
   cp) xclip -selection clipboard -i < $2 ;;
   cs) read -s x && cowsay "$x" ;;
   date) date +%y%m%d_%H%M%S ;;
-  demouse) xdotool mousemove 8000 8000 ;;
   github) git clone git@github.com:$2 ;;
   gsave) git add . && git commit -m "$2" && git log --stat -1 ;;
   help) [[ -n $2 ]] && awk -v opt="$2" "BEGIN{p=0};\$1~opt\")\"{p=1};p{print};\$0~\";;\$\"{p=0}" $(realpath $0) || batcat $(realpath $0) ;;
@@ -17,9 +16,9 @@ case $1 in
   notebook) cd $HOME/desk/nouua && emacs notebook.org ;;
   pack) tar -zcvf $(date +%y%m%d_%H%M%S)_$(basename $2).tar.gz $2 ;;
   shellsetup) echo "$TOOL_SHELL_SETUP" ;;
-  shplay) script $2.timingfile $2.typescript ;;
-  shrec) script -O $2.typescript -T $2.timingfile ;;
-  slp) sleep 30 && systemctl suspend ;;
+  shplay) script $2/timingfile $2/typescript ;;
+  shrec) mkdir $2 && script -O $2/typescript -T $2/timingfile ;;
+  sleep) sleep 30 && systemctl suspend ;;
 # @todo[240907_040353] Launch tmux session in script, nvim, emacs, obs, and
 # other bindings.
   studio) ;; 
