@@ -1,3 +1,4 @@
+-- Built-in configuration.
 vim.opt.ignorecase = true
 vim.opt.smartcase = true
 vim.opt.mouse = ""
@@ -21,17 +22,9 @@ vim.opt.completeopt = {'menu', 'menuone', 'noselect'}
 vim.opt.termguicolors = true
 vim.opt.list = false
 vim.opt.listchars = "tab:<->,trail:-,nbsp:+,leadmultispace:|·,eol:$,space:·"
-function todo_add()
-  vim.cmd("normal O")
-  vim.api.nvim_put({"@todo["..os.date("%y%m%d_%H%M%S").."]"}, "", true, true)
-  vim.cmd("Commentary")
-  vim.cmd("normal A")
-end
-function todo_git_ls()
-  vim.cmd("silent grep '@todo\\[[0-9]{6}_[0-9]{6}\\]' $(git ls-files)")
-  vim.cmd("copen")
-end
 vim.g.netrw_banner = 0
+vim.g.netrw_keepj = ""
+-- Plugin configuration.
 local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
 if not (vim.uv or vim.loop).fs_stat(lazypath) then
   vim.fn.system({
@@ -43,12 +36,18 @@ if not (vim.uv or vim.loop).fs_stat(lazypath) then
     lazypath,
   })
 end
+-- @todo[240908_171356] Separate configs? Probably not.
 vim.opt.rtp:prepend(lazypath)
 require("lazy").setup({
   "folke/which-key.nvim",
   {"folke/neoconf.nvim", cmd = "Neoconf"},
   "folke/neodev.nvim",
-  "jlanzarotta/bufexplorer",
+  {
+    "jlanzarotta/bufexplorer",
+    init = function()
+      vim.g.bufExplorerDisableDefaultKeyMapping = true
+    end,
+  },
   "tpope/vim-fugitive",
   "tpope/vim-commentary",
   "tpope/vim-fireplace",
@@ -57,53 +56,163 @@ require("lazy").setup({
   "junegunn/fzf.vim",
   "airblade/vim-gitgutter",
   "sainnhe/gruvbox-material",
-  "xiyaowong/transparent.nvim",
+  "hrsh7th/cmp-nvim-lsp-signature-help",
   "nvim-treesitter/nvim-treesitter",
   "neovim/nvim-lspconfig",
   "hrsh7th/cmp-nvim-lsp",
   "hrsh7th/cmp-buffer",
   "hrsh7th/cmp-path",
   "hrsh7th/cmp-cmdline",
-  "hrsh7th/nvim-cmp",
+  {
+    "xiyaowong/transparent.nvim",
+    config = function()
+      require("transparent").setup({
+        exclude_groups = {'StatusLine','CursorLine'}
+      })
+    end
+  },
+  {
+    "hrsh7th/nvim-cmp",
+    config = function()
+      local cmp = require'cmp'
+      cmp.setup{
+        snippet = {
+          expand = function(args)
+            vim.fn["vsnip#anonymous"](args.body)
+          end,
+        },
+        mapping = cmp.mapping.preset.insert{
+          ['<C-b>'] = cmp.mapping.scroll_docs(-4),
+          ['<C-f>'] = cmp.mapping.scroll_docs(4),
+          ['<C-Space>'] = cmp.mapping.complete(),
+          ['<C-g>'] = cmp.mapping.abort(),
+          ['<CR>'] = cmp.mapping.confirm{select = true},
+        },
+        sources = cmp.config.sources({
+          {name = 'nvim_lsp'},
+          {name = 'vsnip'},
+          {name = 'buffer'},
+          {name = 'path'},
+          {name = "cmp_r"},
+          {name = "nvim_lsp_signature_help"},
+          {name = "orgmode"},
+          --{name = "conjure"},
+        },{
+          {name = 'buffer'},
+        }),
+      }
+      --cmp.setup.filetype({'sh'}, {sources = {{name = 'bash-language-server'}}})
+      cmp.setup.filetype({'lisp'}, {sources = {{name = 'nvlime'}}})
+    end
+  },
   "hrsh7th/cmp-vsnip",
   "hrsh7th/vim-vsnip",
+  "rafamadriz/friendly-snippets",
   "tikhomirov/vim-glsl",
   "hiphish/info.vim",
-  "rafamadriz/friendly-snippets",
--- @todo[240904_181808] Debug quote insertion.
-  "guns/vim-sexp",
+  -- @todo[240904_181808] Debug quote insertion.
+  {
+    "guns/vim-sexp",
+    init = function()
+      vim.g.sexp_enable_insert_mode_mappings = false
+    end,
+  },
   "duane9/nvim-rg",
   "monkoose/parsley",
   {
     "monkoose/nvlime",
     init = function()
       vim.g.nvlime_config = {cmp = {enabled = true}}
-    end
+    end,
   },
   {
     "lervag/vimtex",
     lazy = false,
     init = function()
       vim.g.vimtex_view_method = "zathura"
+    end,
+  },
+  {
+    "mfussenegger/nvim-dap",
+    config = function()
+      local dap = require('dap')
+      dap.adapters.lldb = {
+        type = 'executable',
+        command = '/home/vukv/opt/llvm-18/bin/lldb-dap',
+        name = 'lldb'
+      }
+      dap.configurations.cpp = {
+        {
+          name = 'Launch',
+          type = 'lldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+          args = {},
+          repl_lang = 'cpp',
+        },
+      }
+      dap.configurations.c = dap.configurations.cpp
+      -- @todo[240905_072430] Test Rust debugging.
+      dap.configurations.rust = {
+        {
+          name = 'Launch',
+          type = 'lldb',
+          request = 'launch',
+          program = function()
+            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+          end,
+          cwd = '${workspaceFolder}',
+          stopOnEntry = false,
+          args = {},
+          initCommands = function()
+            -- @todo[240908_174628] Find pretty printer Python module
+            local rustc_sysroot = vim.fn.trim(vim.fn.system('rustc --print sysroot'))
+            local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
+            local commands_file = rustc_sysroot .. '/lib/rustlib/etc/lldb_commands'
+            local commands = {}
+            local file = io.open(commands_file, 'r')
+            if file then
+              for line in file:lines() do
+                table.insert(commands, line)
+              end
+              file:close()
+            end
+            table.insert(commands, 1, script_import)
+            return commands
+          end,
+        },
+      }
     end
   },
-  "hrsh7th/cmp-nvim-lsp-signature-help",
-  --"olical/conjure",
-  --"paterjason/cmp-conjure",
-  --"vlime/vlime",
-  --"hiphish/nvim-cmp-vlime",
---  {
---    "sakhnik/nvim-gdb",
---    init = function()
---      vim.g.nvimgdb_config_override = {
---        termwin_command = 'aboveleft vnew',
---        codewin_command = 'vnew',
---      }
---    end
---  },
-  "mfussenegger/nvim-dap",
-  "LiadOz/nvim-dap-repl-highlights",
+  {
+    "LiadOz/nvim-dap-repl-highlights",
+    config = function()
+      require('nvim-dap-repl-highlights').setup()
+    end
+  },
   { "folke/trouble.nvim", opts = {}, cmd = "Trouble", },
+  {
+    'nvim-orgmode/orgmode',
+    event = 'VeryLazy',
+    ft = { 'org' },
+    config = function()
+      require('orgmode').setup({
+        org_agenda_files = os.getenv('NOUUA') .. '/org/**/*',
+        org_default_notes_file = os.getenv('NOUUA') .. '/org/notebook.org',
+        emacs_config = {
+          executable_path = 'emacs',
+          config_path = os.getenv('NOUUA') .. '/config/init.el',
+        },
+        mappings = {
+          prefix = ',c',
+        },
+      })
+    end,
+  },
   {
     "kylechui/nvim-surround",
     event = "VeryLazy",
@@ -115,10 +224,13 @@ require("lazy").setup({
     "R-nvim/R.nvim",
     lazy = false
   },
-  "R-nvim/cmp-r",
+  {
+    "R-nvim/cmp-r",
+    config = function()
+      require("cmp_r").setup({})
+    end
+  },
 })
-require("transparent").setup({ exclude_groups = {'StatusLine','CursorLine'}})
-require('nvim-dap-repl-highlights').setup()
 require("nvim-treesitter.configs").setup({
   ensure_installed = {
     "c", "commonlisp", "cpp", "lua", "vim", "vimdoc", "markdown",
@@ -132,87 +244,7 @@ local lspconfig = require('lspconfig')
 lspconfig.clangd.setup{}
 lspconfig.bashls.setup{}
 vim.cmd("colorscheme gruvbox-material")
-local cmp = require('cmp')
-cmp.setup{
-  snippet = {
-    expand = function(args)
-      vim.fn["vsnip#anonymous"](args.body)
-    end,
-  },
-  mapping = cmp.mapping.preset.insert{
-    ['<C-b>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-g>'] = cmp.mapping.abort(),
-    ['<CR>'] = cmp.mapping.confirm{select = true},
-  },
-  sources = cmp.config.sources({
-    {name = 'nvim_lsp'},
-    {name = 'vsnip'},
-    {name = 'buffer'},
-    {name = 'path'},
-    {name = "cmp_r"},
-    {name = "nvim_lsp_signature_help"},
-    --{name = "conjure"},
-  },{
-    {name = 'buffer'},
-  }),
-}
-cmp.setup.filetype({'sh'}, {sources = {{name = 'bash-language-server'}}})
-require("cmp_r").setup({})
-cmp.setup.filetype({'lisp'}, {sources = {{name = 'nvlime'}}})
-local dap = require('dap')
-dap.adapters.lldb = {
-  type = 'executable',
-  command = '/home/vukv/opt/llvm-18/bin/lldb-dap',
-  name = 'lldb'
-}
-local dap = require('dap')
-dap.configurations.cpp = {
-  {
-    name = 'Launch',
-    type = 'lldb',
-    request = 'launch',
-    program = function()
-      return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-    end,
-    cwd = '${workspaceFolder}',
-    stopOnEntry = false,
-    args = {},
-    repl_lang = 'cpp',
-  },
-}
-dap.configurations.c = dap.configurations.cpp
--- @todo[240905_072430] Test Rust debugging.
-dap.configurations.rust = {
-  {
-    name = 'Launch',
-    type = 'lldb',
-    request = 'launch',
-    program = function()
-      return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-    end,
-    cwd = '${workspaceFolder}',
-    stopOnEntry = false,
-    args = {},
-    initCommands = function()
-      -- Find out where to look for the pretty printer Python module
-      local rustc_sysroot = vim.fn.trim(vim.fn.system('rustc --print sysroot'))
-      local script_import = 'command script import "' .. rustc_sysroot .. '/lib/rustlib/etc/lldb_lookup.py"'
-      local commands_file = rustc_sysroot .. '/lib/rustlib/etc/lldb_commands'
-      local commands = {}
-      local file = io.open(commands_file, 'r')
-      if file then
-        for line in file:lines() do
-          table.insert(commands, line)
-        end
-        file:close()
-      end
-      table.insert(commands, 1, script_import)
-      return commands
-    end,
-  },
-}
+-- Vsnim 
 local vsnip_config = vim.api.nvim_exec(
 [[
 " Expand
@@ -230,27 +262,23 @@ imap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-T
 smap <expr> <S-Tab> vsnip#jumpable(-1)  ? '<Plug>(vsnip-jump-prev)'      : '<S-Tab>'
 ]], true)
 
-vim.keymap.set('n', ',,.', '<cmd>term bash<cr>')
-vim.keymap.set('n', ',,q', '<cmd>lua todo_git_ls()<cr>')
-vim.keymap.set('n', ',,w', '<cmd>term w3m -B<cr>')
-vim.keymap.set('n', ',,e', '<cmd>term ranger<cr>')
-vim.keymap.set('n', ',,r', '<cmd>term rlwrap sbcl<cr>')
-vim.keymap.set('n', ',,t', '<cmd>lua todo_add()<cr>')
-vim.keymap.set('n', ',,h', '<cmd>noh<cr>')
-vim.keymap.set('n', ',,g', '<cmd>Git<cr>')
-vim.keymap.set('n', ',,T', '<cmd>sp|res10|term<cr>')
-vim.keymap.set('n', ',,m', '<cmd>term make<cr>')
-vim.keymap.set('n', ',,b', '<cmd>b#<cr>')
-vim.keymap.set('n', ',,v', '<cmd>vs<cr>')
-vim.keymap.set('n', ',,s', '<cmd>sp<cr>')
-vim.keymap.set('n', ',,z', '<cmd>term emacs<cr>')
+-- Base maps.
+vim.keymap.set('t', '<C-space>', '<C-\\><C-N>')
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>')
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>')
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>')
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>')
-vim.keymap.set('t', '<C-space>', '<C-\\><C-N>')
-vim.keymap.set('n', '<leader>e', '<cmd>Explore<Return>')
+-- Language server maps.
+local function quickfix()
+  vim.lsp.buf.code_action({
+    filter = function(a) return a.isPreferred end,
+    apply = true
+  })
+end
+vim.keymap.set('n', '<leader>qf', quickfix, {noremap=true, silent=true})
+-- DAP maps.
 vim.keymap.set('n', '<leader>dc', function() require('dap').continue() end)
+vim.keymap.set('n', '<leader>dt', function() require('dap').terminate() end)
 vim.keymap.set('n', '<leader>da', function() require('dap').step_over() end)
 vim.keymap.set('n', '<leader>ds', function() require('dap').step_into() end)
 vim.keymap.set('n', '<leader>de', function() require('dap').step_out() end)
@@ -276,3 +304,33 @@ vim.keymap.set('n', '<Leader>dv', function()
   widgets.centered_float(widgets.scopes)
 end)
 vim.cmd("au FileType dap-repl lua require('dap.ext.autocompl').attach()")
+-- User maps.
+function todo_add()
+  vim.cmd("normal O")
+  vim.api.nvim_put({"@todo["..os.date("%y%m%d_%H%M%S").."]"}, "", true, true)
+  vim.cmd("Commentary")
+  vim.cmd("normal A")
+end
+function todo_git_ls()
+  vim.cmd("silent grep '@todo\\[[0-9]{6}_[0-9]{6}\\]' $(git ls-files)")
+  vim.cmd("copen")
+end
+vim.keymap.set('n', ',,.', '<cmd>term bash<cr>')
+vim.keymap.set('n', ',,T', '<cmd>sp|term bash<cr>')
+vim.keymap.set('n', ',,b', '<cmd>b#<cr>')
+vim.keymap.set('n', ',,d', '<cmd>Explore<cr>')
+vim.keymap.set('t', ',,d', '<cmd>Explore<cr>')
+vim.keymap.set('n', ',,g', '<cmd>Git<cr>')
+vim.keymap.set('n', ',/', '<cmd>noh<cr>')
+vim.keymap.set('n', ',,l', '<cmd>BufExplorer<cr>')
+vim.keymap.set('t', ',,l', '<cmd>BufExplorer<cr>')
+vim.keymap.set('n', ',,m', '<cmd>term make<cr>')
+vim.keymap.set('n', ',,n', '<cmd>:e $NOUUA/org/notebook.org<cr>')
+vim.keymap.set('n', ',,q', '<cmd>lua todo_git_ls()<cr>')
+vim.keymap.set('n', ',,r', '<cmd>term make run<cr>')
+vim.keymap.set('n', ',,s', '<cmd>sp<cr>')
+vim.keymap.set('n', ',,t', '<cmd>lua todo_add()<cr>')
+vim.keymap.set('n', ',,v', '<cmd>vs<cr>')
+vim.keymap.set('n', ',,w', '<cmd>term w3m -B<cr>')
+vim.keymap.set('n', ',,x', '<cmd>sp<cr>')
+vim.keymap.set('n', ',,z', '<cmd>term emacs<cr>')
