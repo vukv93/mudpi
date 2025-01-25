@@ -16,15 +16,15 @@ A story and a template to make it.
 
 ## Discussion
 
-### 250116_210317 @todo Initial republish
+### 250116_210317 @todo Initial republish @done 250125_072327
 - [x] Prepare release
     - [x] Containerfile
     - [x] Makefile
     - [x] Notebook
     - [x] Other
     - [x] Final touches
-- [ ] Push to GitHub
-- [ ] Publish on nouua
+- [x] Push to GitHub
+- [x] Publish on nouua
 
 ### 250123_230924 @todo Finish cleanup @done 250124_054431
 ### 250124_054444 @todo @ongoing Update references
