@@ -78,6 +78,7 @@ slides: ${doc}
 publish: html pdf slides
 	make -C nouua publish
 	cp -r nouua/build/* build/book
+	cd build && tar czvf ${date}_${book_title}_book.tar.gz book
 read: publish
 	firefox file://$(shell pwd)/build/book/nouua.html
 browse: publish
