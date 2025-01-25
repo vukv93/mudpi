@@ -1,29 +1,47 @@
 #!/usr/bin/env bash
+# Throwing handles.
+MUDPI_USER=${MUDPI_USER:-$(whoami)}
+MUDPI_HOST=${MUDPI_CONT:-$(hostname)}
 DATA_DIR=~/.local/share/tool
 [ ! -e $DATA_DIR ] && mkdir -p $DATA_DIR
 # @todo[240711_074508] Add subcommand completion.
-TOOL_SHELL_SETUP="\
-complete -W \"$(gawk 'match($0,/^\s+(\w+)\)/,a){printf"%s ",a[1]}' $(realpath $0) | sed 's/\n/ /g')\" tool
-"
+TOOL_SHELL_SETUP="complete -W \"$(gawk 'match($0,/^\s+(\w+)\)/,a){printf"%s ",a[1]}' $(realpath $0) | sed 's/\n/ /g')\" tool"
+HELP_AWK="BEGIN{p=0};\$1~c\")\"{p=1};p{print};\$0~\";;\$\"{p=0}" 
+TOOL_PATH=$(realpath $0)
+# @todo[250121_224022] Write functions.
+# _tool_completions() {
+#   COMPREPLY+=("now")
+# }
+# help() {}
 case $1 in
-  cp) xclip -selection clipboard -i < $2 ;;
-  cs) read -s x && cowsay "$x" ;;
-  date) date +%y%m%d_%H%M%S ;;
-  github) git clone git@github.com:$2 ;;
-  gsave) git add . && git commit -m "$2" && git log --stat -1 ;;
-  help) [[ -n $2 ]] && awk -v opt="$2" "BEGIN{p=0};\$1~opt\")\"{p=1};p{print};\$0~\";;\$\"{p=0}" $(realpath $0) || batcat $(realpath $0) ;;
-  music) mpv --audio-display=no $2 ;;
-  notebook) cd $HOME/desk/nouua && emacs notebook.org ;;
-  pack) tar -zcvf $(date +%y%m%d_%H%M%S)_$(basename $2).tar.gz $2 ;;
-  shellsetup) echo "$TOOL_SHELL_SETUP" ;;
-  shplay) script $2/timingfile $2/typescript ;;
-  shrec) mkdir $2 && script -O $2/typescript -T $2/timingfile ;;
-  sleep) sleep 30 && systemctl suspend ;;
-# @todo[240907_040353] Launch tmux session in script, nvim, emacs, obs, and
-# other bindings.
-  studio) ;; 
-  swank) rlwrap sbcl --noinform --eval '(ql:quickload :swank)' --eval "(swank:create-server :dont-close t :port $([[ -n $2 ]] && echo -n $2 || echo -n 4005))" ;;
-  tunnel) ssh -L $3:localhost:$3 $2 ;;
-  ytaudio) yt-dlp -x $2 ;;
-  *) echo "I don't know that one." ;;
+  catd) for f in $(ls); do [ -f $f ] && echo $f && cat $f && echo; done;; 
+  cs) read -s x && cowsay "$x";;
+  date) date +%y%m%d_%H%M%S;;
+  ghget) git clone https://github.com/$2;;
+  help) [[ -n $2 ]] && awk -v c="$2" "$HELP_AWK" $TOOL_PATH || cat $TOOL_PATH;;
+  mudpi)
+    DATE=$(tool date)
+    tmux new -d -s $DATE -n mudpi bash
+    tmux neww -t $DATE:9 -n garage bash
+    tmux neww -t $DATE:8 -n studio bash
+    tmux neww -t $DATE:7 -n library bash
+    tmux neww -t $DATE:1 -n sysmon btop
+    tmux selectw -t $DATE:0
+    tmux attach -t $DATE ;;
+  pack) tar -zcvf $(date +%y%m%d_%H%M%S)_$(basename $2).tar.gz $2;;
+  remember) git log -p ${3:-.} | grep --color "$2";;
+  shellsetup) echo "$TOOL_SHELL_SETUP";;
+  play) scriptreplay $2.timingfile $2.typescript;;
+  rec)
+    fn="${2:-.}/$(tool date)_$MUDPI_USER@$MUDPI_HOST" 
+    script -O $fn.typescript -T $fn.timingfile -c bash;;
+  sleep) sleep 30 && systemctl suspend;;
+  swank)
+    ql='(ql:quickload :swank)'
+    swank="(swank:create-server :dont-close t :port ${2:-4005})"
+    rlwrap sbcl --noinform --eval "$ql" --eval "$swank";;
+  tool) nvim $(realpath $0);;
+  tunnel) ssh -L $3:localhost:$3 $2;;
+  vloop) while :; do f=$(fzf); ([ -e "$f" ] && nvim "$f") || break; done;;
+  *) echo "I don't know that one.";;
 esac

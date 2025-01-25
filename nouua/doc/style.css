@@ -1,0 +1,6 @@
+body, html {
+  background-color: gray;
+  font-family: serif;
+  font-size: 11pt;
+}
+p.subtitle { font-style: italic; }
