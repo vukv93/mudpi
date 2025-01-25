@@ -87,7 +87,7 @@ alias py='python3'
 alias g=git
 alias gg='git status'
 alias gl='git log --oneline -10'
-alias gll='git log --oneline'
+alias gll='git log --graph --oneline'
 alias glt='git log --pretty=format:"%C(yellow)%h  %Creset%ai  %s"'
 alias gls='git ls-files'
 alias t=tool
