@@ -65,7 +65,7 @@ html: ${doc}
 	cp -r doc build/book
 	pandoc -s \
 		-c doc/style.css \
-		--highlight-style nouua/doc/highlight.theme \
+		--highlight-style nouua/highlight.theme \
 		${doc} > build/book/${book_title}.html
 # @todo[250123_050923] LaTeX exports.
 # @todo[250123_223235] SVG to PNG conversion.

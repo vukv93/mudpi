@@ -4,7 +4,7 @@ html: ${doc}
 	mkdir -p build && cp -r doc build
 	pandoc -s \
 		-c doc/style.css \
-		--highlight-style doc/highlight.theme \
+		--highlight-style highlight.theme \
 		${doc} > build/${book_title}.html
 # @todo[250123_050923] LaTeX exports.
 pdf: ${doc}
