@@ -99,7 +99,7 @@ alias vm='MUDPI_VIM_IDE=full nvim'
 alias mm="cd $MUDPI"
 alias cl="cd ~/common-lisp/"
 alias ql="cd ~/quicklisp/dists/quicklisp/"
-alias n="vm $NOUUA/index.md"
+alias n="vm $NOUUA/README.md"
 alias repl='tool swank'
 alias www='w3m -B'
 alias save='git add . && git commit && git log --stat -1'

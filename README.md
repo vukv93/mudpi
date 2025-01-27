@@ -1,13 +1,25 @@
-# Mudpi
+---
+title: 'Mudpi'
+subtitle: 'Workstation environment'
+...
 
-*Workstation environment*
-
-<img src="doc/images/mudpi.svg" alt="cover" width="256px">
+![Mudpi](doc/images/mudpi.svg){width=256px}
 
 ## Scope
 
-Dotfiles and scripts.
+Scripts and dotfiles.
 
 ## References
 
-- [Nouua](https://nouua.com)
+- @ext [github](https://github.com/vukv93/mudpi)
+- [nouua](nouua.html)
+- [cover](index.html)
+- @ext [nouua.com](https://nouua.com)
+
+## Etymology
+
+An acronym, refers to a recipe.
+
+## Tool
+
+![Tool](doc/images/tool.svg){width=256px}

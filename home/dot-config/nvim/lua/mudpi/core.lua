@@ -103,7 +103,7 @@ return {
     vim.keymap.set('n', ',,g', '<cmd>Git<cr>')
     vim.keymap.set('n', ',,l', '<cmd>BufExplorer<cr>')
     vim.keymap.set('n', ',,m', '<cmd>term make<cr>')
-    vim.keymap.set('n', ',,n', '<cmd>:e $NOUUA/index.md<cr>')
+    vim.keymap.set('n', ',,n', '<cmd>:e $NOUUA/README.md<cr>')
     vim.keymap.set('n', ',,q', '<cmd>Ggrep -qrE "@todo\\[[0-9]{6}_[0-9]{6}\\]"<cr>')
     vim.keymap.set('n', ',,t', '<cmd>lua mudpi_todo_add()<cr>')
     vim.keymap.set('n', ',,,t', '<cmd>lua mudpi_time_add()<cr>')

@@ -4,6 +4,7 @@
 /result/
 .cache/
 *.sw[po]
+*.log
 *.wav
 *.flac
 *.mp3

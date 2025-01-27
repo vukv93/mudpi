@@ -60,30 +60,22 @@ new ?= $(shell git branch --show-current)
 patch:
 	mkdir -p build
 	git diff ${old}..${new} > build/${date}_${old}_to_${new}.patch
-html: ${doc}
+# @todo[250123_050923] LaTeX exports.
+# @todo[250123_223235] SVG to PNG conversion.
+publish:
 	mkdir -p build/book
 	cp -r doc build/book
+	cp home/dot-w3m/bookmark.html build/book
 	pandoc -s \
 		-c doc/style.css \
 		--highlight-style nouua/highlight.theme \
-		${doc} > build/book/${book_title}.html
-# @todo[250123_050923] LaTeX exports.
-# @todo[250123_223235] SVG to PNG conversion.
-dbook = build/book
-img_in = $(wildcard doc/images/*)
-img_out = $(foreach img,$(img_in),$(dbook)/$(img).png)
-pdf: ${doc}
-slides: ${doc}
-# @todo[250123_231718] Blame discussion entries.
-publish: html pdf slides
+		README.md > build/book/${book_title}.html
+	mkdir -p ${NOUUA}/build/book
+	cp -r build/book/* ${NOUUA}/build/book
 	make -C nouua publish
-	cp -r nouua/build/* build/book
-	cd build && tar czvf ${date}_${book_title}_book.tar.gz book
 read: publish
-	firefox file://$(shell pwd)/build/book/nouua.html
-browse: publish
-	firefox file://$(shell pwd)/build/book/nouua.html
-#	w3m file://$(shell pwd)/build/book/${book_title}.html
+	firefox file://${NOUUA}/build/book/index.html
+#	w3m file://${NOUUA}/build/book/index.html
 # @todo[250105_165004] Conventient container control and monitoring.
 status:
 	@echo "# Latest:"
